@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-        IMAGE_NAME            = "yourdockerhubuser/denmarkdailways"
+        IMAGE_NAME            ="sampath2720/denmarkdailways"
         IMAGE_TAG             = "${env.BUILD_NUMBER}"
     }
 
