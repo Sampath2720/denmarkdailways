@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+k    agent any
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/yourusername/denmarkdailways.git'
+                git branch: 'main', url: 'https://github.com/Sampath2720/denmarkdailways.git'
             }
         }
 
