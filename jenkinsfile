@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+        IMAGE_NAME            = "yourdockerhubuser/denmarkdailways"
+        IMAGE_TAG             = "${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/yourusername/denmarkdailways.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest ."
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
+                sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                sh "docker push ${IMAGE_NAME}:latest"
+            }
+        }
+
+        stage('Deploy to K3s') {
+            steps {
+                sh "kubectl set image deployment/denmark-railway denmark-railway=${IMAGE_NAME}:${IMAGE_TAG} -n default --record"
+                sh "kubectl rollout status deployment/denmark-railway -n default --timeout=120s"
+            }
+        }
+    }
+
+    post {
+        always {
+            sh "docker logout || true"
+        }
+        success {
+            echo "Pipeline completed — image ${IMAGE_TAG} is live on K3s."
+        }
+        failure {
+            echo "Pipeline failed — check the stage logs above."
+        }
+    }
+}

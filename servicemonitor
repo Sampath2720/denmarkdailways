@@ -1,0 +1,16 @@
+# Requires the Prometheus Operator (installed via the kube-prometheus-stack Helm chart).
+# The "release" label must match the Helm release name of your prometheus-stack install.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: devops-demo-monitor
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: devops-demo
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
